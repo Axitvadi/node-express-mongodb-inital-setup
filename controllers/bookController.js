@@ -1,7 +1,7 @@
 const Book = require('../models/book')
 const { prepareSuccessResponse } = require('../utils/responseHandler')
 
-exports.addBook = async (req, res, next) => {
+exports.addBook = async (req, res) => {
   const newBook = new Book({
     name: req.body.name,
     description: req.body.description,
@@ -20,7 +20,7 @@ exports.addBook = async (req, res, next) => {
     .json(prepareSuccessResponse(result, 'Book saved successfully'))
 }
 
-exports.getBook = async (req, res, next) => {
+exports.getBook = async (req, res) => {
   const id = req.params.id
   const book = await Book.findById(id)
   if (!book) {
@@ -42,22 +42,31 @@ exports.getBook = async (req, res, next) => {
     .json(prepareSuccessResponse(result, 'Book retrieved successfully'))
 }
 
-exports.getAllBooks = async (req, res, next) => {
+exports.getAllBooks = async (req, res) => {
   const books = await Book.find()
-  if (!books) {
+
+  if (!books.length) {
     const error = new Error('Books not found.')
     error.statusCode = 404
     throw error
   }
 
-  const result = books
+  const result = books.map(book => {
+    return {
+      id: book._id,
+      name: book.name,
+      description: book.description,
+      published_on: book.published_on,
+      isbn: book.isbn
+    }
+  })
 
   return res
     .status(200)
     .json(prepareSuccessResponse(result, 'Books retrieved successfully.'))
 }
 
-exports.updateBook = async (req, res, next) => {
+exports.updateBook = async (req, res) => {
   const id = req.params.id
 
   const preBook = {
@@ -87,7 +96,7 @@ exports.updateBook = async (req, res, next) => {
     .json(prepareSuccessResponse(result, 'Book updated successfully.'))
 }
 
-exports.deleteBook = async (req, res, next) => {
+exports.deleteBook = async (req, res) => {
   const id = req.params.id
   const book = await Book.findByIdAndRemove(id)
   if (!book) {
