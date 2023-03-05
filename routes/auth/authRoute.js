@@ -4,7 +4,7 @@ const router = express.Router()
 const { login, register } = require('../../controllers/authController.js')
 const Validator = require('../../utils/validateRequest')
 
-// function for promise resolve
+//  function for promise resolve
 const use = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next)
 }
