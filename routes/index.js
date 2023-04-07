@@ -7,8 +7,12 @@ const common = require('./common/index')
 
 const authorize = require('../middleware/jwtAuth')
 
+const use = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next)
+}
+
 router.use('/auth', auth)
-router.use('/admin', authorize(['admin']), admin)
-router.use('/common', authorize(['admin', 'user']), common)
+router.use('/admin', use(authorize(['admin'])), admin)
+router.use('/common', use(authorize(['admin', 'user'])), common)
 
 module.exports = router
